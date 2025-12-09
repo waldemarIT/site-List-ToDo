@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List - Менеджер завдань</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .add-task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            flex: 1;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+
+        .task-description {
+            color: #6b7280;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-date {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const API_URL = 'http://localhost:8080/api/tasks';
+
+        function App() {
+            const [tasks, setTasks] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [title, setTitle] = useState('');
+
+            useEffect(() => {
+                fetchTasks();
+            }, []);
+
+            const fetchTasks = async () => {
+                try {
+                    setLoading(true);
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error('Помилка завантаження завдань');
+                    const data = await response.json();
+                    setTasks(data);
+                    setError(null);
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const addTask = async (e) => {
+                e.preventDefault();
+                if (!title.trim()) return;
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title })
+                    });
+                    if (!response.ok) throw new Error('Помилка створення завдання');
+                    const newTask = await response.json();
+                    setTasks([...tasks, newTask]);
+                    setTitle('');
+                } catch (err) {
+                    setError(err.message);
+                }
+            };
+
+            const toggleTask = async (task) => {
+                try {
+                    console.log('Toggling task:', task);
+                    const response = await fetch(`${API_URL}/${task.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ completed: !task.completed })
+                    });
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Error response:', errorData);
+                        throw new Error('Помилка оновлення завдання: ' + (errorData.error || response.statusText));
+                    }
+                    const updatedTask = await response.json();
+                    console.log('Updated task:', updatedTask);
+                    setTasks(tasks.map(t => t.id === task.id ? updatedTask : t));
+                    setError(null);
+                } catch (err) {
+                    console.error('Toggle error:', err);
+                    setError(err.message);
+                }
+            };
+
+            const deleteTask = async (id) => {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Помилка видалення завдання');
+                    setTasks(tasks.filter(t => t.id !== id));
+                } catch (err) {
+                    setError(err.message);
+                }
+            };
+
+            const completedCount = tasks.filter(t => t.completed).length;
+            const activeCount = tasks.length - completedCount;
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>📝 Менеджер завдань</h1>
+                        <p>Керуйте своїми справами ефективно</p>
+                    </div>
+
+                    <div className="stats">
+                        <div className="stat-item">
+                            <div className="stat-value">{tasks.length}</div>
+                            <div className="stat-label">Всього</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{activeCount}</div>
+                            <div className="stat-label">Активні</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{completedCount}</div>
+                            <div className="stat-label">Виконані</div>
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="error">
+                            ⚠️ {error}
+                        </div>
+                    )}
+
+                    <div className="card">
+                        <h2 style={{marginBottom: '20px', color: '#1f2937'}}>✏️ Додати нове завдання</h2>
+                        <form onSubmit={addTask} className="add-task-form">
+                            <div className="input-group">
+                                <label htmlFor="title">Назва завдання *</label>
+                                <input
+                                    id="title"
+                                    type="text"
+                                    placeholder="Наприклад: Купити продукти"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary">
+                                ➕ Додати завдання
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="card">
+                        <h2 style={{marginBottom: '20px', color: '#1f2937'}}>📋 Список завдань</h2>
+                        {loading ? (
+                            <div className="loading">Завантаження...</div>
+                        ) : tasks.length === 0 ? (
+                            <div className="empty-state">
+                                <h3>🎉 У вас поки немає завдань</h3>
+                                <p>Додайте своє перше завдання вище!</p>
+                            </div>
+                        ) : (
+                            <div className="tasks-list">
+                                {tasks.map(task => (
+                                    <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                                        <div className="task-header">
+                                            <div className="task-title">{task.title}</div>
+                                        </div>
+                                        <div className="task-footer">
+                                            <div className="task-date">
+                                                {task.created_at ? new Date(task.created_at).toLocaleDateString('uk-UA', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) : 'Щойно'}
+                                            </div>
+                                            <div className="task-actions">
+                                                <button
+                                                    className="btn btn-success"
+                                                    onClick={() => toggleTask(task)}
+                                                >
+                                                    {task.completed ? '↩️ Відновити' : '✓ Виконано'}
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger"
+                                                    onClick={() => deleteTask(task.id)}
+                                                >
+                                                    🗑️ Видалити
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
